@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+
+    environment {
+        GIT_CREDENTIALS = 'github-ssh-key'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'master',
+                    url: 'git@github.com:rajeshvarade/simple-java-maven-app.git',
+                    credentialsId: "${env.GIT_CREDENTIALS}"
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        
+        stage('Deploy to Tomcat') {
+            steps {
+                sshagent(credentials: ['tomcat-ssh']){
+                    //scp -o strictHostKeyChecking=no target/maven-web-app.war ec2-user@172.31.44.111:/usr/local/tomcat/webapps/
+                    sh '''
+                    
+                    scp -o StrictHostKeyChecking=no target/*.war ec2-user@13.126.2.120:/tmp/
+                    ssh -o StrictHostKeyChecking=no ec2-user@13.126.2.120 'sudo mv /tmp/java-maven-tomcat-app-1.0-SNAPSHOT.war /usr/local/tomcat/webapps/'
+                    '''
+					//ssh -o StrictHostKeyChecking=no ec2-user@13.126.2.120 'sudo /usr/local/tomcat/bin/startup.sh'
+                }
+            }
+        }
+    }
+    
+     post {
+        always {
+            junit 'target/surefire-reports/*.xml'
