@@ -5,7 +5,7 @@
     <title>Welcome to Java Maven Tomcat App</title>
 </head>
 <body>
-    <h1>Hello, this is my first pipeline</h1>
+    <h1>Hello, this is jenkins pipeline</h1>
     <p>Welcome to the Java Maven Tomcat application.</p>
 </body>
 </html>
